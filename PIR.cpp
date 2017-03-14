@@ -1,6 +1,6 @@
 #include "PIR.h"
 
-PIR::PIR(int pin, long cooldown, float height, int fov) {
+PIR::PIR(int pin, unsigned long cooldown, float height, int fov) {
     /**
     * Create a new PIR sensor object
     * @param pin Number of the pin that the sensor's data line is connected to
@@ -10,10 +10,8 @@ PIR::PIR(int pin, long cooldown, float height, int fov) {
     */
     _pin = pin;
     _trigger_mode = PIR_REPEATING;
-
-    if (cooldown_time > 0) {
-        cooldown_time = cooldown;
-    }
+    cooldown_time = cooldown;
+    _trigger_state = HIGH;
 
     // Calculate sensor radius
     if (height > 0 && fov > 0) {
@@ -64,7 +62,7 @@ void PIR::update() {
     */
     // Check cooldown status
     if (is_in_cooldown) {
-        if (millis() - detection_start_time > cooldown_time) {
+        if ((millis() - detection_start_time) > cooldown_time) {
             is_in_cooldown = false;
 
             if (_cooldown_over) {
@@ -74,7 +72,7 @@ void PIR::update() {
     }
 
     // Check for motion if not in cooldown
-    if (!is_in_cooldown) {
+    else if (!is_in_cooldown) {
         // Has the sensor been triggered?
         if (digitalRead(_pin) == _trigger_state) {
             /* Trigger modes:

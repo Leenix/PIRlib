@@ -16,7 +16,6 @@ typedef void (*event_callback)(void); /**< Callback function structure - must ha
 
 class PIR {
    public:
-
     /**
     * Create a new PIR sensor object
     * @param pin Number of the pin that the sensor's data line is connected to
@@ -24,7 +23,7 @@ class PIR {
     * @param height Mounting height of the sensor in metres
     * @param fov Viewing angle of the sensor in degrees
     */
-    PIR(int pin, long cooldown = DEFAULT_COOLDOWN, float height = 0, int fov = 0);
+    PIR(int pin, unsigned long cooldown = DEFAULT_COOLDOWN, float height = 0, int fov = 0);
 
     /**
     * Initialise the sensor for use.
@@ -93,33 +92,34 @@ class PIR {
     void set_trigger_mode(bool trigger_mode);
 
     bool state; /**< Detection state of the sensor; HIGH if a detection event is currently taking place*/
-    bool is_in_cooldown; /**< Flag to indicate whether or not the sensor is in software cooldown */
-    unsigned long num_detections; /**< The number of detections recorded by the sensor */
+    unsigned long num_detections;       /**< The number of detections recorded by the sensor */
     unsigned long detection_start_time; /**< Start time of the latest detection event (in ms since program start time)*/
-    unsigned long last_untriggered_time;/**< Last time that the sensor state was LOW (in ms since program start time)*/
-    unsigned long event_width;/**< Amount of time that the sensor state has remained HIGH in ms*/
-    unsigned long cooldown_time;/**< The minimum amount of time required between detections in ms*/
-    float radius;/**< Radius of the sensor's detection area in metres*/
+    unsigned long last_untriggered_time; /**< Last time that the sensor state was LOW (in ms since program start time)*/
+    unsigned long event_width;           /**< Amount of time that the sensor state has remained HIGH in ms*/
+    unsigned long cooldown_time;         /**< The minimum amount of time required between detections in ms*/
+    float radius;                        /**< Radius of the sensor's detection area in metres*/
+    bool is_in_cooldown;                 /**< Flag to indicate whether or not the sensor is in software cooldown */
 
-/**
-* Trigger mode of the sensor.
-* PIR_REPEATING - sensor records repeat events as long as the trigger state remains high.
-* PIR_DISCRETE - The sensor trigger state must go low before recording a new detection event.
-*/
-enum TRIGGER_MODES { PIR_REPEATING = 0, PIR_DISCRETE = 1 };
+    /**
+    * Trigger mode of the sensor.
+    * PIR_REPEATING - sensor records repeat events as long as the trigger state remains high.
+    * PIR_DISCRETE - The sensor trigger state must go low before recording a new detection event.
+    */
+    enum TRIGGER_MODES { PIR_REPEATING = 0, PIR_DISCRETE = 1 };
 
    private:
     const static long DEFAULT_COOLDOWN = 5000; /**< Default cooldown period of the sensor in ms */
-    const static long DEFAULT_CALIBRATION_TIME = 10000; /**< Default time the sensor must be left alone to calibrate in ms */
+    const static long DEFAULT_CALIBRATION_TIME =
+        10000; /**< Default time the sensor must be left alone to calibrate in ms */
     const static bool DEFAULT_MOTION_TRIGGER_STATE = HIGH; /**< Default trigger state of the sensor */
 
-    int _trigger_mode; /**< Current trigger mode of the sensor (See: TRIGGER_MODES)*/
-    event_callback _event_start; /**< Function to call when a detection event starts */
-    event_callback _event_end; /**< Function to call when the trigger state falls LOW after a detection event */
+    int _trigger_mode;             /**< Current trigger mode of the sensor (See: TRIGGER_MODES)*/
+    event_callback _event_start;   /**< Function to call when a detection event starts */
+    event_callback _event_end;     /**< Function to call when the trigger state falls LOW after a detection event */
     event_callback _cooldown_over; /**< Function to call when the cooldown expires after a detection event */
-    int _pin; /**< The data pin assignment of the sensor */
-    float _height; /**< Mounting height of the sensor in metres */
-    int _fov; /**< Field of view of the sensor in degrees */
+    int _pin;                      /**< The data pin assignment of the sensor */
+    float _height;                 /**< Mounting height of the sensor in metres */
+    int _fov;                      /**< Field of view of the sensor in degrees */
     bool _trigger_state; /**< The state of the data pin that indicates that motion has been detected (usually HIGH)*/
 };
 #endif
