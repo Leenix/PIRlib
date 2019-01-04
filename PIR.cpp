@@ -71,15 +71,18 @@ void PIR::update() {
         }
     }
 
-    // Check for motion if not in cooldown
-    else if (!is_in_cooldown) {
+    // Check for motion
+    if (digitalRead(_pin) == _trigger_state) {
         // Has the sensor been triggered?
-        if (digitalRead(_pin) == _trigger_state) {
-            /* Trigger modes:
-            * REPEATING: Sensor events will be counted after every cooldown if the sensor stays triggered
-            * DISCRETE: The sensor must go low before counting another event
-            */
-            if (_trigger_mode == PIR_REPEATING || (_trigger_mode == PIR_DISCRETE && !state)) {
+        /* Trigger modes:
+        * REPEATING: Sensor events will be counted after every cooldown if the sensor stays triggered
+        * DISCRETE: The sensor must go low before counting another event
+        */
+
+        // New motion events are only valid if the sensor is off cooldown
+        if (!is_in_cooldown || _trigger_mode == PIR_DISCRETE_NO_COOLDOWN) {
+            if (_trigger_mode == PIR_REPEATING ||
+                ((_trigger_mode == PIR_DISCRETE || _trigger_mode == PIR_DISCRETE_NO_COOLDOWN) && !state)) {
                 state = true;
                 detection_start_time = millis();
                 is_in_cooldown = true;
@@ -91,18 +94,20 @@ void PIR::update() {
                 }
             }
         }
+    }
 
-        // Sensor not triggered - end the current event if this is the first low since the detection
-        else {
-            if (state) {
-                event_width = get_current_event_time();
-                if (_event_end) {
-                    (*_event_end)();
-                }
+    // Sensor not triggered
+    else {
+        // End the active event if the sensor was previously triggered
+        if (state) {
+            event_width = get_current_event_time();
+            if (_event_end) {
+                (*_event_end)();
             }
-            state = false;
-            last_untriggered_time = millis();
         }
+
+        state = false;
+        last_untriggered_time = millis();
     }
 }
 
@@ -146,7 +151,7 @@ void PIR::set_trigger_state(bool trigger_state) {
     _trigger_state = trigger_state;
 }
 
-void PIR::set_trigger_mode(bool trigger_mode) {
+void PIR::set_trigger_mode(int trigger_mode) {
     /**
     * Set the trigger mode of the sensor
     * @param trigger_mode {PIR_REPEATING | PIR_DISCRETE}

@@ -89,7 +89,7 @@ class PIR {
     * PIR_REPEATING - sensor records repeat events as long as the trigger state remains high.
     * PIR_DISCRETE - The sensor trigger state must go low before recording a new detection event.
     */
-    void set_trigger_mode(bool trigger_mode);
+    void set_trigger_mode(int trigger_mode);
 
     bool state; /**< Detection state of the sensor; HIGH if a detection event is currently taking place*/
     unsigned long num_detections;       /**< The number of detections recorded by the sensor */
@@ -104,8 +104,9 @@ class PIR {
     * Trigger mode of the sensor.
     * PIR_REPEATING - sensor records repeat events as long as the trigger state remains high.
     * PIR_DISCRETE - The sensor trigger state must go low before recording a new detection event.
+    * PIR_DISCRETE_NO_COOLDOWN - Trigger state must go low, but cooldowns are ignored
     */
-    enum TRIGGER_MODES { PIR_REPEATING = 0, PIR_DISCRETE = 1 };
+    enum TRIGGER_MODES { PIR_REPEATING = 0, PIR_DISCRETE = 1, PIR_DISCRETE_NO_COOLDOWN = 2 };
 
    private:
     const static long DEFAULT_COOLDOWN = 5000; /**< Default cooldown period of the sensor in ms */
